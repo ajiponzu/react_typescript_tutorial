@@ -111,6 +111,16 @@ class Game extends React.Component {
       const desc = idx
         ? `Go to move #${idx} ⇒ ${elem.lastPlayer}: (${elem.pos})`
         : "Go to game start";
+
+      if (idx === this.state.stepNumber)
+        return (
+          <li>
+            <button onClick={() => this.jumpTo(idx)}>
+              <strong>{desc}</strong>
+            </button>
+          </li>
+        );
+
       return (
         <li>
           <button onClick={() => this.jumpTo(idx)}>{desc}</button>
