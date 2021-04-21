@@ -45,6 +45,8 @@ class Game extends React.Component {
     history: [
       {
         squares: string[];
+        lastPlayer: string;
+        pos: [number, number];
       }
     ];
     stepNumber: number;
@@ -57,6 +59,8 @@ class Game extends React.Component {
       history: [
         {
           squares: Array(9).fill(null),
+          lastPlayer: "",
+          pos: [0, 0],
         },
       ],
       stepNumber: 0,
@@ -70,12 +74,15 @@ class Game extends React.Component {
     const squaresCopy = current.squares.slice();
 
     if (calculateWinner(squaresCopy) || squaresCopy[idx]) return;
+
     squaresCopy[idx] = this.state.xIsNext ? "X" : "O";
 
     this.setState({
       history: history.concat([
         {
           squares: squaresCopy,
+          lastPlayer: squaresCopy[idx],
+          pos: [(idx % 3) + 1, Math.floor(idx / 3) + 1],
         },
       ]),
       stepNumber: history.length,
@@ -95,11 +102,18 @@ class Game extends React.Component {
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
-    const moves = history.map((_step, move) => {
-      const desc = move ? `Go to move #${move}` : "Go to game start";
+    const moves = history.map((elem, idx) => {
+      //map関数: コピーし，ラムダ式処理をforeach済みの配列を返す
+      // (配列を直接変更する場合はforeachを使ってメモリ節約)
+      //本来，第一引数だけでよく，これは配列の各要素
+      //しかし，第二引数があると，要素の添え字として使える
+      //→ javascriptのforeach系は全てそうらしい → c++より便利
+      const desc = idx
+        ? `Go to move #${idx} ⇒ ${elem.lastPlayer}: (${elem.pos})`
+        : "Go to game start";
       return (
-        <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        <li>
+          <button onClick={() => this.jumpTo(idx)}>{desc}</button>
         </li>
       );
     });
