@@ -19,25 +19,18 @@ const Board = (props: {
     );
   };
 
-  return (
-    <div>
-      <div className="board-row">
-        {renderSquare(0)}
-        {renderSquare(1)}
-        {renderSquare(2)}
-      </div>
-      <div className="board-row">
-        {renderSquare(3)}
-        {renderSquare(4)}
-        {renderSquare(5)}
-      </div>
-      <div className="board-row">
-        {renderSquare(6)}
-        {renderSquare(7)}
-        {renderSquare(8)}
-      </div>
-    </div>
-  );
+  //JSX.Elementがhtml要素?
+  //v-forはないので，JSX.Element[]にpush
+  //returnするときにhtmlタグと{}で囲ってJSX.Elementに変換して返す
+  let board: JSX.Element[] = [];
+  for (let row = 0; row < 9; row += 3) {
+    let columns: JSX.Element[] = [];
+    for (let column = row; column < row + 3; column++)
+      columns.push(renderSquare(column));
+    board.push(<div>{columns}</div>);
+  }
+
+  return <div>{board}</div>;
 };
 
 class Game extends React.Component {
@@ -112,20 +105,20 @@ class Game extends React.Component {
         ? `Go to move #${idx} ⇒ ${elem.lastPlayer}: (${elem.pos})`
         : "Go to game start";
 
-      if (idx === this.state.stepNumber)
-        return (
-          <li>
+      let retElem =
+        idx === this.state.stepNumber ? (
+          <li key={idx}>
             <button onClick={() => this.jumpTo(idx)}>
               <strong>{desc}</strong>
             </button>
           </li>
+        ) : (
+          <li key={idx}>
+            <button onClick={() => this.jumpTo(idx)}>{desc}</button>
+          </li>
         );
 
-      return (
-        <li>
-          <button onClick={() => this.jumpTo(idx)}>{desc}</button>
-        </li>
-      );
+      return retElem;
     });
 
     let status: string;
