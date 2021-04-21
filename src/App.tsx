@@ -1,6 +1,10 @@
 import React from "react";
 import "./index.css";
 
+const rowNum = 3;
+const columnNum = 3;
+const pixelNum = rowNum * columnNum;
+
 const Square = (props: { value: string; onClick: VoidFunction }) => {
   return (
     <button className="square" onClick={() => props.onClick()}>
@@ -23,9 +27,9 @@ const Board = (props: {
   //v-forはないので，JSX.Element[]にpush
   //returnするときにhtmlタグと{}で囲ってJSX.Elementに変換して返す
   let board: JSX.Element[] = [];
-  for (let row = 0; row < 9; row += 3) {
+  for (let row = 0; row < pixelNum; row += columnNum) {
     let columns: JSX.Element[] = [];
-    for (let column = row; column < row + 3; column++)
+    for (let column = row; column < row + columnNum; column++)
       columns.push(renderSquare(column));
     board.push(<div>{columns}</div>);
   }
@@ -51,7 +55,7 @@ class Game extends React.Component {
     this.state = {
       history: [
         {
-          squares: Array(9).fill(null),
+          squares: Array(pixelNum).fill(null),
           lastPlayer: "",
           pos: [0, 0],
         },
@@ -75,7 +79,7 @@ class Game extends React.Component {
         {
           squares: squaresCopy,
           lastPlayer: squaresCopy[idx],
-          pos: [(idx % 3) + 1, Math.floor(idx / 3) + 1],
+          pos: [(idx % columnNum) + 1, Math.floor(idx / columnNum) + 1],
         },
       ]),
       stepNumber: history.length,
