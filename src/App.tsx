@@ -105,20 +105,14 @@ class Game extends React.Component {
         ? `Go to move #${idx} ⇒ ${elem.lastPlayer}: (${elem.pos})`
         : "Go to game start";
 
-      let retElem =
-        idx === this.state.stepNumber ? (
-          <li key={idx}>
-            <button onClick={() => this.jumpTo(idx)}>
-              <strong>{desc}</strong>
-            </button>
-          </li>
-        ) : (
-          <li key={idx}>
-            <button onClick={() => this.jumpTo(idx)}>{desc}</button>
-          </li>
-        );
+      const buttonText =
+        idx === this.state.stepNumber ? <strong>{desc}</strong> : desc;
 
-      return retElem;
+      return (
+        <li key={idx}>
+          <button onClick={() => this.jumpTo(idx)}>{buttonText}</button>
+        </li>
+      );
     });
 
     let status: string;
