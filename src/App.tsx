@@ -7,7 +7,11 @@ const pixelNum = rowNum * columnNum;
 
 const Square = (props: { value: string; onClick: VoidFunction }) => {
   return (
-    <button className="square" onClick={() => props.onClick()}>
+    <button
+      className="square"
+      onClick={() => props.onClick()}
+      key={props.value}
+    >
       {props.value}
     </button>
   );
@@ -19,7 +23,11 @@ const Board = (props: {
 }) => {
   const renderSquare = (idx: number) => {
     return (
-      <Square value={props.squares[idx]} onClick={() => props.onClick(idx)} />
+      <Square
+        value={props.squares[idx]}
+        onClick={() => props.onClick(idx)}
+        key={idx}
+      />
     );
   };
 
@@ -27,11 +35,15 @@ const Board = (props: {
   //v-forはないので，JSX.Element[]にpush
   //returnするときにhtmlタグと{}で囲ってJSX.Elementに変換して返す
   let board: JSX.Element[] = [];
-  for (let row = 0; row < pixelNum; row += columnNum) {
+  for (let pixel = 0; pixel < pixelNum; pixel += columnNum) {
     let columns: JSX.Element[] = [];
-    for (let column = row; column < row + columnNum; column++)
+    for (let column = pixel; column < pixel + columnNum; column++)
       columns.push(renderSquare(column));
-    board.push(<div>{columns}</div>);
+    board.push(
+      <div className="board-row" key={Math.floor(pixel / 3)}>
+        {columns}
+      </div>
+    );
   }
 
   return <div>{board}</div>;
