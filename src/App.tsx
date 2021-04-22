@@ -1,5 +1,5 @@
 import React from "react";
-import "./index.css";
+import "./App.css";
 
 const rowNum = 3;
 const columnNum = 3;
@@ -84,7 +84,7 @@ class Game extends React.Component {
 
     if (calculateWinner(squaresCopy) || squaresCopy[idx]) return;
 
-    squaresCopy[idx] = this.state.xIsNext ? "X" : "O";
+    squaresCopy[idx] = this.state.xIsNext ? "●" : "○";
 
     this.setState({
       history: history.concat([
@@ -122,18 +122,24 @@ class Game extends React.Component {
         : "Go to game start";
 
       const buttonText =
-        idx === this.state.stepNumber ? <strong>{desc}</strong> : desc;
+        idx === this.state.stepNumber ? (
+          <strong className="history-highlight">{desc}</strong>
+        ) : (
+          desc
+        );
 
       return (
         <li key={idx}>
-          <button onClick={() => this.jumpTo(idx)}>{buttonText}</button>
+          <button className="history-button" onClick={() => this.jumpTo(idx)}>
+            {buttonText}
+          </button>
         </li>
       );
     });
 
     let status: string;
     if (winner) status = "Winner: " + winner;
-    else status = `Next player: ${this.state.xIsNext ? "X" : "O"}`;
+    else status = `Next player: ${this.state.xIsNext ? "●" : "○"}`;
 
     return (
       <div className="game">
