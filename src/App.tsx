@@ -172,6 +172,35 @@ class Game extends React.Component {
       );
     });
 
+    const radioButtons = (
+      <div>
+        <input
+          type="radio"
+          className="radio-button-rise"
+          name="sort"
+          onChange={() =>
+            this.setState({
+              isRise: true,
+            })
+          }
+          defaultChecked={this.state.isRise}
+        />
+        <strong className="radio-button-rise">昇順</strong>
+        <input
+          type="radio"
+          className="radio-button-down"
+          name="sort"
+          onChange={() =>
+            this.setState({
+              isRise: false,
+            })
+          }
+          defaultChecked={!this.state.isRise} //checkedだと別のボタンを押しても選択されない
+        />
+        <strong className="radio-button-down">降順</strong>
+      </div>
+    );
+
     let status: string;
     if (winner !== null) {
       if (winner === "引き分け") status = winner;
@@ -188,32 +217,7 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
-          <div>
-            <input
-              type="radio"
-              className="radio-button-rise"
-              name="sort"
-              onChange={() =>
-                this.setState({
-                  isRise: true,
-                })
-              }
-              defaultChecked={this.state.isRise}
-            />
-            <strong className="radio-button-rise">昇順</strong>
-            <input
-              type="radio"
-              className="radio-button-down"
-              name="sort"
-              onChange={() =>
-                this.setState({
-                  isRise: false,
-                })
-              }
-              defaultChecked={!this.state.isRise} //checkedだと別のボタンを押しても選択されない
-            />
-            <strong className="radio-button-down">降順</strong>
-          </div>
+          {radioButtons}
           <div className="history">{moves}</div>
         </div>
       </div>
