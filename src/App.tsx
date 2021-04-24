@@ -247,10 +247,10 @@ const calculateWinner = (squaresInf: SquaresInf, step: number) => {
       squaresInf.win[b] = true;
       squaresInf.win[c] = true;
       squaresInf.winner = squaresInf.squares[a];
-      return squaresInf;
     }
   }
 
+  if (squaresInf.winner != "") return squaresInf;
   if (step == pixelNum) return "引き分け";
 
   return null;
