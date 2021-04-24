@@ -103,7 +103,11 @@ class Game extends React.Component {
       winner: current.squaresInf.winner,
     };
 
-    if (calculateWinner(squaresCopy) || squaresCopy.squares[idx]) return;
+    if (
+      calculateWinner(squaresCopy, current.stepNumber) ||
+      squaresCopy.squares[idx]
+    )
+      return;
 
     squaresCopy.squares[idx] = this.state.xIsNext ? "●" : "○";
 
@@ -131,7 +135,7 @@ class Game extends React.Component {
   render = () => {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squaresInf);
+    const winner = calculateWinner(current.squaresInf, current.stepNumber);
 
     const movesTemp = this.state.isRise
       ? history.slice()
@@ -169,8 +173,10 @@ class Game extends React.Component {
     });
 
     let status: string;
-    if (winner !== null) status = "Winner: " + winner.winner;
-    else status = `Next player: ${this.state.xIsNext ? "●" : "○"}`;
+    if (winner !== null) {
+      if (winner == "引き分け") status = winner;
+      else status = "Winner: " + winner.winner;
+    } else status = `Next player: ${this.state.xIsNext ? "●" : "○"}`;
 
     return (
       <div className="game">
@@ -215,7 +221,7 @@ class Game extends React.Component {
   };
 }
 
-const calculateWinner = (squaresInf: SquaresInf) => {
+const calculateWinner = (squaresInf: SquaresInf, step: number) => {
   //三目並べの勝ち筋における，石の位置の組合せ
   const lines = [
     [0, 1, 2],
@@ -244,6 +250,8 @@ const calculateWinner = (squaresInf: SquaresInf) => {
       return squaresInf;
     }
   }
+
+  if (step == pixelNum) return "引き分け";
 
   return null;
 };
