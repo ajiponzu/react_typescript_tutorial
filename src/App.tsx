@@ -174,7 +174,7 @@ class Game extends React.Component {
 
     let status: string;
     if (winner !== null) {
-      if (winner == "引き分け") status = winner;
+      if (winner === "引き分け") status = winner;
       else status = "Winner: " + winner.winner;
     } else status = `Next player: ${this.state.xIsNext ? "●" : "○"}`;
 
@@ -250,8 +250,8 @@ const calculateWinner = (squaresInf: SquaresInf, step: number) => {
     }
   }
 
-  if (squaresInf.winner != "") return squaresInf;
-  if (step == pixelNum) return "引き分け";
+  if (squaresInf.winner !== "") return squaresInf;
+  if (step === pixelNum) return "引き分け";
 
   return null;
 };
