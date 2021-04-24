@@ -5,28 +5,37 @@ const rowNum = 3;
 const columnNum = 3;
 const pixelNum = rowNum * columnNum;
 
-const Square = (props: { value: string; onClick: VoidFunction }) => {
+const Square = (props: {
+  value: string;
+  onClick: VoidFunction;
+  key: number;
+  isWin: boolean;
+}) => {
+  const buttonClass = props.isWin ? "squareWin" : "square";
   return (
-    <button
-      className="square"
-      onClick={() => props.onClick()}
-      key={props.value}
-    >
+    <button className={buttonClass} onClick={props.onClick} key={props.value}>
       {props.value}
     </button>
   );
 };
 
-const Board = (props: {
+type SquaresInf = {
   squares: string[];
+  win: boolean[];
+  winner: string;
+};
+
+const Board = (props: {
+  squaresInf: SquaresInf;
   onClick: (idx: number) => void;
 }) => {
   const renderSquare = (idx: number) => {
     return (
       <Square
-        value={props.squares[idx]}
+        value={props.squaresInf.squares[idx]}
         onClick={() => props.onClick(idx)}
         key={idx}
+        isWin={props.squaresInf.win[idx]}
       />
     );
   };
@@ -53,13 +62,15 @@ class Game extends React.Component {
   state: {
     history: [
       {
-        squares: string[];
+        stepNumber: number;
+        squaresInf: SquaresInf;
         lastPlayer: string;
         pos: [number, number];
       }
     ];
     stepNumber: number;
     xIsNext: boolean;
+    isRise: boolean;
   };
 
   constructor(props: {}) {
@@ -67,30 +78,41 @@ class Game extends React.Component {
     this.state = {
       history: [
         {
-          squares: Array(pixelNum).fill(null),
+          stepNumber: 0,
+          squaresInf: {
+            squares: Array(pixelNum).fill(""),
+            win: Array(pixelNum).fill(false),
+            winner: "",
+          },
           lastPlayer: "",
           pos: [0, 0],
         },
       ],
       stepNumber: 0,
       xIsNext: true,
+      isRise: true,
     };
   }
 
   handleClick = (idx: number) => {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
-    const squaresCopy = current.squares.slice();
+    const squaresCopy: SquaresInf = {
+      squares: current.squaresInf.squares.slice(),
+      win: current.squaresInf.win.slice(),
+      winner: current.squaresInf.winner,
+    };
 
-    if (calculateWinner(squaresCopy) || squaresCopy[idx]) return;
+    if (calculateWinner(squaresCopy) || squaresCopy.squares[idx]) return;
 
-    squaresCopy[idx] = this.state.xIsNext ? "●" : "○";
+    squaresCopy.squares[idx] = this.state.xIsNext ? "●" : "○";
 
     this.setState({
       history: history.concat([
         {
-          squares: squaresCopy,
-          lastPlayer: squaresCopy[idx],
+          stepNumber: history.length,
+          squaresInf: squaresCopy,
+          lastPlayer: squaresCopy.squares[idx],
           pos: [(idx % columnNum) + 1, Math.floor(idx / columnNum) + 1],
         },
       ]),
@@ -109,56 +131,91 @@ class Game extends React.Component {
   render = () => {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares);
+    const winner = calculateWinner(current.squaresInf);
 
-    const moves = history.map((elem, idx) => {
+    const movesTemp = this.state.isRise
+      ? history.slice()
+      : history.slice().reverse();
+    const moves = movesTemp.slice().map((elem) => {
       //map関数: コピーし，ラムダ式処理をforeach済みの配列を返す
       // (配列を直接変更する場合はforeachを使ってメモリ節約)
       //本来，第一引数だけでよく，これは配列の各要素
       //しかし，第二引数があると，要素の添え字として使える
       //→ javascriptのforeach系は全てそうらしい → c++より便利
-      const desc = idx
-        ? `Go to move #${idx} ⇒ ${elem.lastPlayer}: (${elem.pos})`
+
+      const desc = elem.stepNumber
+        ? `Go to move #${elem.stepNumber} ⇒ ${elem.lastPlayer}: (${elem.pos})`
         : "Go to game start";
 
       const buttonText =
-        idx === this.state.stepNumber ? (
-          <strong className="history-highlight">{desc}</strong>
+        elem.stepNumber === this.state.stepNumber ? (
+          <strong className="history-highlight">
+            {elem.stepNumber + ".  " + desc}
+          </strong>
         ) : (
-          desc
+          elem.stepNumber + ".  " + desc
         );
 
       return (
-        <li key={idx}>
-          <button className="history-button" onClick={() => this.jumpTo(idx)}>
+        <div className="history-line" key={elem.stepNumber}>
+          <button
+            className="history-button"
+            onClick={() => this.jumpTo(elem.stepNumber)}
+          >
             {buttonText}
           </button>
-        </li>
+        </div>
       );
     });
 
     let status: string;
-    if (winner) status = "Winner: " + winner;
+    if (winner !== null) status = "Winner: " + winner.winner;
     else status = `Next player: ${this.state.xIsNext ? "●" : "○"}`;
 
     return (
       <div className="game">
         <div className="game-board">
           <Board
-            squares={current.squares}
+            squaresInf={current.squaresInf}
             onClick={(idx: number) => this.handleClick(idx)}
           />
         </div>
         <div className="game-info">
           <div>{status}</div>
-          <ol>{moves}</ol>
+          <div>
+            <input
+              type="radio"
+              className="radio-button-rise"
+              name="sort"
+              onChange={() =>
+                this.setState({
+                  isRise: true,
+                })
+              }
+              defaultChecked={this.state.isRise}
+            />
+            <strong className="radio-button-rise">昇順</strong>
+            <input
+              type="radio"
+              className="radio-button-down"
+              name="sort"
+              onChange={() =>
+                this.setState({
+                  isRise: false,
+                })
+              }
+              defaultChecked={!this.state.isRise} //checkedだと別のボタンを押しても選択されない
+            />
+            <strong className="radio-button-down">降順</strong>
+          </div>
+          <div className="history">{moves}</div>
         </div>
       </div>
     );
   };
 }
 
-const calculateWinner = (squares: Array<string>) => {
+const calculateWinner = (squaresInf: SquaresInf) => {
   //三目並べの勝ち筋における，石の位置の組合せ
   const lines = [
     [0, 1, 2],
@@ -175,8 +232,17 @@ const calculateWinner = (squares: Array<string>) => {
     //tie
     const [a, b, c] = lines[i];
     //同プレイヤーの石が三つ並んでいるか
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c])
-      return squares[a];
+    if (
+      squaresInf.squares[a] &&
+      squaresInf.squares[a] === squaresInf.squares[b] &&
+      squaresInf.squares[a] === squaresInf.squares[c]
+    ) {
+      squaresInf.win[a] = true;
+      squaresInf.win[b] = true;
+      squaresInf.win[c] = true;
+      squaresInf.winner = squaresInf.squares[a];
+      return squaresInf;
+    }
   }
 
   return null;
