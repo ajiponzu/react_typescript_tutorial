@@ -1,61 +1,40 @@
 import React from "react";
+import Board, { columnNum, pixelNum, SquaresInf } from "./Board";
 import "./App.css";
 
-const rowNum = 3;
-const columnNum = 3;
-const pixelNum = rowNum * columnNum;
+const calculateWinner = (squaresInf: SquaresInf, step: number) => {
+  //三目並べの勝ち筋における，石の位置の組合せ
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
 
-const Square = (props: {
-  value: string;
-  onClick: VoidFunction;
-  key: number;
-  isWin: boolean;
-}) => {
-  const buttonClass = props.isWin ? "squareWin" : "square";
-  return (
-    <button className={buttonClass} onClick={props.onClick} key={props.value}>
-      {props.value}
-    </button>
-  );
-};
-
-type SquaresInf = {
-  squares: string[];
-  win: boolean[];
-  winner: string;
-};
-
-const Board = (props: {
-  squaresInf: SquaresInf;
-  onClick: (idx: number) => void;
-}) => {
-  const renderSquare = (idx: number) => {
-    return (
-      <Square
-        value={props.squaresInf.squares[idx]}
-        onClick={() => props.onClick(idx)}
-        key={idx}
-        isWin={props.squaresInf.win[idx]}
-      />
-    );
-  };
-
-  //JSX.Elementがhtml要素?
-  //v-forはないので，JSX.Element[]にpush
-  //returnするときにhtmlタグと{}で囲ってJSX.Elementに変換して返す
-  let board: JSX.Element[] = [];
-  for (let pixel = 0; pixel < pixelNum; pixel += columnNum) {
-    let columns: JSX.Element[] = [];
-    for (let column = pixel; column < pixel + columnNum; column++)
-      columns.push(renderSquare(column));
-    board.push(
-      <div className="board-row" key={Math.floor(pixel / 3)}>
-        {columns}
-      </div>
-    );
+  for (let i = 0; i < lines.length; i++) {
+    //tie
+    const [a, b, c] = lines[i];
+    //同プレイヤーの石が三つ並んでいるか
+    if (
+      squaresInf.squares[a] &&
+      squaresInf.squares[a] === squaresInf.squares[b] &&
+      squaresInf.squares[a] === squaresInf.squares[c]
+    ) {
+      squaresInf.win[a] = true;
+      squaresInf.win[b] = true;
+      squaresInf.win[c] = true;
+      squaresInf.winner = squaresInf.squares[a];
+    }
   }
 
-  return <div>{board}</div>;
+  if (squaresInf.winner !== "") return squaresInf;
+  if (step === pixelNum) return "引き分け";
+
+  return null;
 };
 
 class Game extends React.Component {
@@ -224,40 +203,5 @@ class Game extends React.Component {
     );
   };
 }
-
-const calculateWinner = (squaresInf: SquaresInf, step: number) => {
-  //三目並べの勝ち筋における，石の位置の組合せ
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-
-  for (let i = 0; i < lines.length; i++) {
-    //tie
-    const [a, b, c] = lines[i];
-    //同プレイヤーの石が三つ並んでいるか
-    if (
-      squaresInf.squares[a] &&
-      squaresInf.squares[a] === squaresInf.squares[b] &&
-      squaresInf.squares[a] === squaresInf.squares[c]
-    ) {
-      squaresInf.win[a] = true;
-      squaresInf.win[b] = true;
-      squaresInf.win[c] = true;
-      squaresInf.winner = squaresInf.squares[a];
-    }
-  }
-
-  if (squaresInf.winner !== "") return squaresInf;
-  if (step === pixelNum) return "引き分け";
-
-  return null;
-};
 
 export default Game;
