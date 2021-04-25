@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Board, { columnNum, pixelNum, SquaresInf } from "./Board";
 import "./App.css";
 
@@ -36,6 +36,31 @@ const calculateWinner = (squaresInf: SquaresInf, step: number) => {
 
   return null;
 };
+
+type Note = {
+  stepNumber: number;
+  squaresInf: SquaresInf;
+  lastPlayer: string;
+  pos: [number, number];
+};
+
+const initNote: Note[] = [
+  {
+    stepNumber: 0,
+    squaresInf: {
+      squares: Array(pixelNum).fill(""),
+      win: Array(pixelNum).fill(false),
+      winner: "",
+    },
+    lastPlayer: "",
+    pos: [0, 0],
+  },
+];
+
+const [history, setHistory] = useState(initNote);
+const [stepNumber, setStepNumber] = useState(0);
+const [xIsNext, setXIsNext] = useState(true);
+const [isRise, setIsRise] = useState(true);
 
 class Game extends React.Component {
   state: {
