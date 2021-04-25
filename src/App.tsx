@@ -83,14 +83,14 @@ const Game = () => {
     setHistory(
       historyCopy.concat([
         {
-          stepNumber: history.length,
+          stepNumber: stepNumber + 1,
           squaresInf: squaresCopy,
           lastPlayer: squaresCopy.squares[idx],
           pos: [(idx % columnNum) + 1, Math.floor(idx / columnNum) + 1],
         },
       ])
     );
-    setStepNumber(history.length);
+    setStepNumber(stepNumber + 1);
     setXIsNext(!xIsNext);
   };
 
